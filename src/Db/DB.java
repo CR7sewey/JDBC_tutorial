@@ -42,10 +42,9 @@ public class DB {
     public static void disconnectDB() throws SQLException {
         if (connection != null) {
             try {
-                DB.closeAll();
-                //connection.close();
-
                 connection.commit();
+
+                //connection.close();
                 System.out.println("Connection closed");
             } catch (SQLException e) {
                 try {
@@ -55,6 +54,9 @@ public class DB {
                     e1.printStackTrace();
                 }
                 throw new DbException(e.getMessage());
+            }
+            finally {
+                DB.closeAll();
             }
         }
 

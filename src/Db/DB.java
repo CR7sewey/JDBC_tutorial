@@ -27,6 +27,7 @@ public class DB {
                 (new DB()).loadProperties();
                 connection = DriverManager.getConnection(properties.getProperty("dburl"), properties.getProperty("user"), properties.getProperty("password"));
                 System.out.println("Connetion established: " + connection);
+                connection.setAutoCommit(false);
             }
             catch (SQLException e) {
                 throw new DbException(e.getMessage());
@@ -38,13 +39,21 @@ public class DB {
         return connection;
     }
 
-    public static void disconnectDB() {
+    public static void disconnectDB() throws SQLException {
         if (connection != null) {
             try {
                 DB.closeAll();
                 //connection.close();
+
+                connection.commit();
                 System.out.println("Connection closed");
             } catch (SQLException e) {
+                try {
+                    connection.rollback();
+                }
+                catch (Exception e1) {
+                    e1.printStackTrace();
+                }
                 throw new DbException(e.getMessage());
             }
         }

@@ -1,4 +1,5 @@
 import Db.DB;
+import Exceptions.DbException;
 
 import java.sql.*;
 
@@ -21,7 +22,7 @@ public class Main {
             PreparedStatement preparedStatement = null;
             DB.getPreparedStatement("insert into department(id, name) values (?, ?)");
             preparedStatement = DB.preparedStatement;
-            preparedStatement.setInt(1, 5);
+            preparedStatement.setInt(1, 7);
             preparedStatement.setString(2, "Juanito");
             int rows_affected = preparedStatement.executeUpdate();
             System.out.println( rows_affected + " rows affected");
@@ -37,6 +38,8 @@ public class Main {
             else{
                 System.out.println( "Insert failed");
             }
+
+            throw new DbException("De proposito");
 
 
         }

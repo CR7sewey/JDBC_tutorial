@@ -4,21 +4,23 @@ import Exceptions.DbException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 public class DB {
 
     private static Properties properties = null;
     private static Connection connection = null;
+    private static Statement statement = null;
+    public static PreparedStatement preparedStatement = null;
+    private static ResultSet resultSet = null;
 
 
     public DB() {
 
     }
 
+    // DB connection + disconnection
     public static Connection getConnection() {
         if (connection == null) {
             try {
@@ -28,20 +30,19 @@ public class DB {
             }
             catch (SQLException e) {
                 throw new DbException(e.getMessage());
-
             }
         }
         else {
             return connection;
         }
-        return null;
-
+        return connection;
     }
 
     public static void disconnectDB() {
         if (connection != null) {
             try {
-                connection.close();
+                DB.closeAll();
+                //connection.close();
                 System.out.println("Connection closed");
             } catch (SQLException e) {
                 throw new DbException(e.getMessage());
@@ -49,6 +50,70 @@ public class DB {
         }
 
     }
+
+    // object with the result of query - table
+    public static ResultSet getResultSet(String query) {
+        try {
+            if (connection != null) {
+                DB.getConnection();
+            }
+            if (statement == null) {
+                DB.getStatementGET();
+            }
+
+            resultSet = statement.executeQuery(query);
+            return resultSet;
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
+    }
+
+    // Introduce parameters
+    public static void getPreparedStatement(String query) throws SQLException {
+        try {
+            if (connection == null) {
+                getConnection();
+            }
+            preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        }
+        catch (SQLException e) {
+            closeAll();
+            throw new DbException(e.getMessage());
+        }
+    }
+
+    // Utils
+    // Statement to create sql query
+    private static void getStatementGET() {
+        try {
+            if (connection == null) {
+                getConnection();
+            }
+            statement = connection.createStatement();
+        }
+        catch (SQLException e) {
+            throw new DbException(e.getMessage());
+
+        }
+     }
+
+
+
+     public static void closeAll() throws SQLException {
+         if (resultSet != null) {
+             resultSet.close();
+         }
+         if (statement != null) {
+             statement.close();
+         }
+         if (preparedStatement != null) {
+             preparedStatement.close();
+         }
+         if (connection != null) {
+             connection.close();
+         }
+     }
+
 
 
     private void loadProperties() {

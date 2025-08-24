@@ -2,7 +2,10 @@ package Entities.DAO;
 
 import Entities.Department;
 import Entities.Interfaces.IDepartmentDao;
+import Entities.Seller;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 public class DepartmentDaoJDBC implements IDepartmentDao {

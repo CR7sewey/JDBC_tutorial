@@ -50,16 +50,8 @@ public class SellerDaoJDBC implements ISellerDao {
             rs = preparedStatement.executeQuery();
             if (rs.next()) { // pq cursor na zero!
 
-                Department dep = new Department();
-                dep.setId(rs.getInt("DepartmentId"));
-                dep.setName(rs.getString("DepName"));
-
-                seller.id = rs.getInt("id"); // should be the method but im lazy
-                seller.name = rs.getString("name");
-                seller.email = rs.getString("email");
-                seller.baseSalary = rs.getDouble("baseSalary");
-                seller.birthDate = rs.getDate("birthDate");
-                seller.department = dep;
+                Department dep = instatiateDepartment(rs);
+                seller = instatiateSeller(rs, dep);
 
             }
 
@@ -76,5 +68,23 @@ public class SellerDaoJDBC implements ISellerDao {
     @Override
     public List<Seller> findAll() {
         return List.of();
+    }
+
+    private Seller instatiateSeller(ResultSet rs, Department dep) throws SQLException {
+        Seller seller = new Seller();
+        seller.id = rs.getInt("id"); // should be the method but im lazy
+        seller.name = rs.getString("name");
+        seller.email = rs.getString("email");
+        seller.baseSalary = rs.getDouble("baseSalary");
+        seller.birthDate = rs.getDate("birthDate");
+        seller.department = dep;
+        return seller;
+    }
+
+    private Department instatiateDepartment(ResultSet rs) throws SQLException {
+        Department dep = new Department();
+        dep.setId(rs.getInt("id"));
+        dep.setName(rs.getString("name"));
+        return dep;
     }
 }

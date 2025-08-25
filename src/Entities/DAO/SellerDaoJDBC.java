@@ -6,10 +6,7 @@ import Entities.Interfaces.ISellerDao;
 import Entities.Seller;
 import Exceptions.DbException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +19,48 @@ public class SellerDaoJDBC implements ISellerDao {
     }
 
     @Override
-    public void insert(Seller obj) {
+    public void insert(Seller obj) throws SQLException {
+        ResultSet rs = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement("INSERT INTO seller\n" +
+                    "(Name, Email, BirthDate, BaseSalary, DepartmentId)\n" +
+                    "VALUES\n" +
+                    "(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 
+            //preparedStatement = DB.preparedStatement;
+            preparedStatement.setString(1, obj.name);
+            preparedStatement.setString(2, obj.email);
+            preparedStatement.setDate(3, new java.sql.Date(obj.birthDate.getTime()));
+            preparedStatement.setDouble(4, obj.baseSalary);
+            preparedStatement.setInt(5, obj.department.getId());
+
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                rs = preparedStatement.getGeneratedKeys();
+                while (rs.next()) {
+                    int id = rs.getInt(1);
+                    //String name = rs.getString("Name");
+                    obj.id = id;
+                    System.out.println(id);
+                }
+                rs.close();
+            }
+            else{
+                throw new DbException("Insert failed");
+            }
+
+
+        }
+        catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
+        finally {
+            //assert rs != null;
+            //rs.close();
+            //DB.disconnectDB();
+        }
     }
 
     @Override
@@ -32,7 +69,8 @@ public class SellerDaoJDBC implements ISellerDao {
     }
 
     @Override
-    public void deleteById(Integer id) {
+    public void deleteById(Integer id) throws SQLException {
+
 
     }
 
@@ -42,11 +80,11 @@ public class SellerDaoJDBC implements ISellerDao {
         PreparedStatement preparedStatement = null;
         Seller seller = new Seller();
         try {
-            DB.getPreparedStatement("SELECT seller.*,department.Name as DepName\n" +
+            preparedStatement = connection.prepareStatement("SELECT seller.*,department.Name as DepName\n" +
                     "FROM seller INNER JOIN department\n" +
                     "ON seller.DepartmentId = department.Id\n" +
                     "WHERE seller.Id = ?");
-            preparedStatement = DB.preparedStatement;
+            //preparedStatement = DB.preparedStatement;
             preparedStatement.setInt(1, id);
             rs = preparedStatement.executeQuery();
             if (rs.next()) { // pq cursor na zero!
@@ -62,7 +100,9 @@ public class SellerDaoJDBC implements ISellerDao {
             throw new DbException(e.getMessage());
         }
         finally {
-            DB.disconnectDB();
+            //assert rs != null;
+            //rs.close();
+           // DB.disconnectDB();
         }
     }
 

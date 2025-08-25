@@ -9,7 +9,7 @@ public interface ISellerDao {
 
 
         public void insert(Seller obj) throws SQLException;
-        public void update(Seller obj);
+        public void update(Seller obj) throws SQLException;
         public void deleteById(Integer id) throws SQLException;
         public Seller findById(Integer id) throws SQLException;
         public List<Seller> findAll() throws SQLException;

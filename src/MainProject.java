@@ -41,11 +41,25 @@ public class MainProject {
         con = DB.getConnection();
         seller = new SellerDaoJDBC(con);
 
-        var val10 = seller.findById(10);
-        System.out.println(val10);
+       // var val10 = seller.findById(10);
+        //System.out.println(val10);
 
         // Delete One
        // seller.deleteById();
 
+        seller.update(new Seller(
+                        10,
+                        "TESTE 123",
+                        "teste@gmail",
+                        new Date(),
+                        10000.00,
+                        new Department(
+                                2, null
+                        )
+                )
+        );
+        seller = new SellerDaoJDBC(DB.getConnection());
+        Seller val10 = seller.findById(10);
+        System.out.println(val10);
     }
 }

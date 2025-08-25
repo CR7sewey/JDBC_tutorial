@@ -64,7 +64,49 @@ public class SellerDaoJDBC implements ISellerDao {
     }
 
     @Override
-    public void update(Seller obj) {
+    public void update(Seller obj) throws SQLException {
+        ResultSet rs = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement("UPDATE seller\n" +
+                    "        SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ?\n" +
+                    "                WHERE Id = ?", Statement.RETURN_GENERATED_KEYS);
+
+            //preparedStatement = DB.preparedStatement;
+            preparedStatement.setString(1, obj.name);
+            preparedStatement.setString(2, obj.email);
+            preparedStatement.setDate(3, new java.sql.Date(obj.birthDate.getTime()));
+            preparedStatement.setDouble(4, obj.baseSalary);
+            preparedStatement.setInt(5, obj.department.getId());
+            preparedStatement.setInt(6, obj.id);
+
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                rs = preparedStatement.getGeneratedKeys();
+                while (rs.next()) {
+                    int id = rs.getInt(1);
+                    //String name = rs.getString("Name");
+                    obj.id = id;
+                    System.out.println(id);
+                }
+                rs.close();
+            }
+            else{
+                throw new DbException("Insert failed");
+            }
+
+
+        }
+        catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
+        finally {
+            //assert rs != null;
+            //rs.close();
+            DB.disconnectDB();
+        }
+
 
     }
 
@@ -80,10 +122,14 @@ public class SellerDaoJDBC implements ISellerDao {
         PreparedStatement preparedStatement = null;
         Seller seller = new Seller();
         try {
-            preparedStatement = connection.prepareStatement("SELECT seller.*,department.Name as DepName\n" +
-                    "FROM seller INNER JOIN department\n" +
-                    "ON seller.DepartmentId = department.Id\n" +
-                    "WHERE seller.Id = ?");
+            if (connection == null) {
+                connection = DB.getConnection();
+            }
+            preparedStatement = connection.prepareStatement("""
+                    SELECT seller.*,department.Name as DepName
+                    FROM seller INNER JOIN department
+                    ON seller.DepartmentId = department.Id
+                    WHERE seller.Id = ?""");
             //preparedStatement = DB.preparedStatement;
             preparedStatement.setInt(1, id);
             rs = preparedStatement.executeQuery();
@@ -102,7 +148,7 @@ public class SellerDaoJDBC implements ISellerDao {
         finally {
             //assert rs != null;
             //rs.close();
-           // DB.disconnectDB();
+            DB.disconnectDB();
         }
     }
 

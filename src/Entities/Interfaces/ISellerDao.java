@@ -12,6 +12,6 @@ public interface ISellerDao {
         public void update(Seller obj);
         public void deleteById(Integer id);
         public Seller findById(Integer id) throws SQLException;
-        public List<Seller> findAll();
+        public List<Seller> findAll() throws SQLException;
 
 }

@@ -14,5 +14,9 @@ public class MainProject {
         var val = seller.findById(1);
         System.out.println(val);
 
+        System.out.println(seller);
+        var val2 = seller.findAll();
+        System.out.println(val2);
+
     }
 }

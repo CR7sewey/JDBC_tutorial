@@ -65,7 +65,7 @@ public class DB {
     // object with the result of query - table
     public static ResultSet getResultSet(String query) {
         try {
-            if (connection != null) {
+            if (connection == null) {
                 DB.getConnection();
             }
             if (statement == null) {
@@ -97,7 +97,9 @@ public class DB {
     // Statement to create sql query
     private static void getStatementGET() {
         try {
-            if (connection == null) {
+            System.out.println(connection);
+            if (connection != null) {
+                connection = null;
                 getConnection();
             }
             statement = connection.createStatement();
